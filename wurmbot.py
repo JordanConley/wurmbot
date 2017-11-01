@@ -49,6 +49,8 @@ async def dispatch_message(msg):
         await getip(msg.channel)
     elif s[1] == 'help':
         await client.send_message(msg.channel, 'All commands start with `!wb `. Valid commands: `help`, `ip`')
+    elif s[1] == 'invite':
+        await client.send_message(msg.channel, 'https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0'.format(PRIVATE_KEYS['client_id']))
     else:
         await client.send_message(msg.channel, 'Command not implemented. See `!wb help` for details.')
 
