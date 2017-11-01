@@ -7,8 +7,20 @@ import json
 client = discord.Client()
 session = aiohttp.ClientSession()
 
+PRIVATE_KEYS = {}
 
-PRIVATE_KEYS = json.load(open('keys.json'))
+try:
+    f = open('keys.json')
+    PRIVATE_KEYS = json.load(f)
+    assert PRIVATE_KEYS.__contains__('client_id')
+    assert PRIVATE_KEYS.__contains__('client_secret')
+    assert PRIVATE_KEYS.__contains__('token')
+except FileNotFoundError:
+    print('ERROR: key file `keys.json` does not exist.')
+    exit(-1)
+except (json.JSONDecodeError, AssertionError):
+    print('ERROR: key file `keys.json` is invalid.')
+    exit(-1)
 
 
 @client.event
@@ -30,7 +42,7 @@ async def fetch(session, url):
             return (st, body)
 
 
-async def getip(channel):
+async def get_ip(channel):
     status, text, = await fetch(session, 'http://ipinfo.io/json')
     if status == 200:
         print(text)
@@ -46,11 +58,13 @@ async def dispatch_message(msg):
     if len(s) == 1:
         await client.send_message(msg.channel, 'I need an argument. See `!wb help` for details.')
     elif s[1] == 'ip':
-        await getip(msg.channel)
+        await get_ip(msg.channel)
     elif s[1] == 'help':
         await client.send_message(msg.channel, 'All commands start with `!wb `. Valid commands: `help`, `ip`')
     elif s[1] == 'invite':
         await client.send_message(msg.channel, 'https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0'.format(PRIVATE_KEYS['client_id']))
+    elif s[1] == 'wiki':
+        await client.send_message(msg.channel, 'https://github.com/JordanConley/wurmbot/wiki')
     else:
         await client.send_message(msg.channel, 'Command not implemented. See `!wb help` for details.')
 
@@ -68,5 +82,6 @@ async def on_message(message):
                 counter += 1
 
         await client.edit_message(tmp, 'You have {} messages'.format(counter))
+
 
 client.run(PRIVATE_KEYS['token'])
