@@ -56,7 +56,9 @@ async def dispatch_message(msg):
     print(s)
 
     if len(s) == 1:
-        await client.send_message(msg.channel, 'I need an argument. See `!wb help` for details.')
+        await client.send_message(msg.channel, 'Give me a command, fam. See `!wb help` for details.')
+    elif s[1] == 'bully':
+        await client.send_message(msg.channel, 'C E A S E :gun:')
     elif s[1] == 'ip':
         await get_ip(msg.channel)
     elif s[1] == 'help':
@@ -73,15 +75,6 @@ async def dispatch_message(msg):
 async def on_message(message):
     if message.content.startswith('!wb ') or message.content == '!wb':
         await dispatch_message(message)
-
-    elif message.content.startswith('!test'):
-        counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        async for log in client.logs_from(message.channel, limit = 100):
-            if log.author == message.author:
-                counter += 1
-
-        await client.edit_message(tmp, 'You have {} messages'.format(counter))
 
 
 client.run(PRIVATE_KEYS['token'])
