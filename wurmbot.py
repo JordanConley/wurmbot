@@ -22,16 +22,17 @@ except (json.JSONDecodeError, AssertionError):
     print('ERROR: key file `keys.json` is invalid.')
     exit(-1)
 
+INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=0' % PRIVATE_KEYS['client_id']
 
 @client.event
 async def on_ready():
     print('WURMBOT: logged in as ' + client.user.name + ' (' + client.user.id + ')')
     ch = client.get_all_channels()
 
-    client.send_message("WURMBOT logged in")
-    print('-----------------------')
 
-    print('invite me to the server using: https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0'.format(PRIVATE_KEYS['client_id']))
+    client.send_message("WURMBOT logged in")
+    print('invite me to the server using: ' + INVITE_LINK)
+    print('-----------------------')
 
 
 async def fetch(session, url):
@@ -47,26 +48,24 @@ async def get_ip(channel):
     if status == 200:
         print(text)
         js = json.loads(text)
-        await client.send_message(channel, 'The server is currently at ' + js['ip'])
+        await client.send_message(channel, 'The server is currently at `' + js['ip'] + '`')
 
 
 async def dispatch_message(msg):
     # print('got message: ' + msg)
     s = msg.content.lstrip().rstrip().split()
-    print(s)
 
     if len(s) == 1:
         await client.send_message(msg.channel, 'Give me a command, fam. See `!wb help` for details.')
     elif s[1] == 'bully':
-        await client.send_message(msg.channel, 'C E A S E :gun:')
+        await client.send_message(msg.channel, ''.join([':regional_indicator_' + x + ':' for x in "cease"]) + ' :gun:')
     elif s[1] == 'ip':
         await get_ip(msg.channel)
     elif s[1] == 'help':
-        await client.send_message(msg.channel, 'All commands start with `!wb `. Valid commands: `help`, `ip`')
+        commandlist= '`' + '`, `'.join(['help', 'ip', 'invite']) + '`'
+        await client.send_message(msg.channel, 'All commands start with `!wb `. Valid commands: ' + commandlist)
     elif s[1] == 'invite':
-        await client.send_message(msg.channel, 'https://discordapp.com/api/oauth2/authorize?client_id={}&scope=bot&permissions=0'.format(PRIVATE_KEYS['client_id']))
-    elif s[1] == 'wiki':
-        await client.send_message(msg.channel, 'https://github.com/JordanConley/wurmbot/wiki')
+        await client.send_message(msg.channel, INVITE_LINK)
     else:
         await client.send_message(msg.channel, 'Command not implemented. See `!wb help` for details.')
 
