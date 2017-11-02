@@ -24,15 +24,19 @@ except (json.JSONDecodeError, AssertionError):
 
 INVITE_LINK = 'https://discordapp.com/api/oauth2/authorize?client_id=%s&scope=bot&permissions=0' % PRIVATE_KEYS['client_id']
 
+
 @client.event
 async def on_ready():
     print('WURMBOT: logged in as ' + client.user.name + ' (' + client.user.id + ')')
     ch = client.get_all_channels()
 
-
     client.send_message("WURMBOT logged in")
     print('invite me to the server using: ' + INVITE_LINK)
     print('-----------------------')
+
+
+def block_text(t, spaces=False):
+    return (' ' if spaces else '').join([':regional_indicator_' + x + ':' for x in t])
 
 
 async def fetch(session, url):
@@ -56,13 +60,16 @@ async def dispatch_message(msg):
     s = msg.content.lstrip().rstrip().split()
 
     if len(s) == 1:
-        await client.send_message(msg.channel, 'Give me a command, fam. See `!wb help` for details.')
+        await client.send_message(msg.channel, 'Give me a command. See `!wb help` for details.')
+    elif s[1] == 'blocktext':
+        textout = ' '.join([block_text(t) for t in s[2:]])
+        await client.send_message(msg.channel, textout)
     elif s[1] == 'bully':
-        await client.send_message(msg.channel, ''.join([':regional_indicator_' + x + ':' for x in "cease"]) + ' :gun:')
+        await client.send_message(msg.channel, block_text("cease") + ' :gun:')
     elif s[1] == 'ip':
         await get_ip(msg.channel)
     elif s[1] == 'help':
-        commandlist= '`' + '`, `'.join(['help', 'ip', 'invite']) + '`'
+        commandlist= '`' + '`, `'.join(sorted(['help', 'ip', 'invite','blocktext'])) + '`'
         await client.send_message(msg.channel, 'All commands start with `!wb `. Valid commands: ' + commandlist)
     elif s[1] == 'invite':
         await client.send_message(msg.channel, INVITE_LINK)
